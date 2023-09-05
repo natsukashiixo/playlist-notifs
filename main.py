@@ -48,6 +48,9 @@ def isolate_playlist_ids(file):
                 playlist_id_list.append(line)
             else:
                 playlist_id_list.append(line)
+        f.close
+    with open(file, 'w') as f:
+        f.close    
 
     if Path('stored_values.json').exists():
         with open('stored_values.json', 'r') as json_file:
