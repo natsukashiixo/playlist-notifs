@@ -26,6 +26,9 @@ reference_url= 'https://www.youtube.com/watch?v=bcvgyfsnY70&list=PLX_S7d-Dodi_pc
 playlist_id_list = []
 playlists_file = 'playlist_urls.txt'
 
+old_ids_list = []
+all_ids_list = []
+
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
@@ -71,7 +74,7 @@ def youtube_accessible():
 def get_playlist_info(playlist_var: str):
     # Disable OAuthlib's HTTPS verification when running locally.
     # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
 
     api_service_name = "youtube"
     api_version = "v3"
@@ -97,12 +100,11 @@ def isolate_latest_addition(response):
 def stored_video_id(playlist_id: str):
     with open('stored_values.json', 'r') as file:
         json_data = json.load(file)
+        #this probably opens and closes the file if its used in a for loop. seems bad but don't optimize prematurely.
     
     for entry in json_data:
         if entry.get("playlist_id") == playlist_id:
             return entry.get("stored_video")
-    
-    return None
 
 def send_notification(response):
     json_object = response
@@ -157,20 +159,40 @@ if __name__ == "__main__":
         isolate_playlist_ids(playlists_file)
         for item in playlist_id_list:
             response = get_playlist_info(item)
-            video_id = isolate_latest_addition(response)
-            stored_index = stored_video_id(item)
-            if stored_index != video_id: 
-                send_notification(response)
-                to_write = create_json_object(response)
+            to_write = create_json_object(response)
+            initial_data.append(to_write)
                 
-                # Append the new entry to the list
-                initial_data.append(to_write)
-                
-                # Update the JSON file with the updated list
-                with open('stored_values.json', 'w') as write_file:
-                    json.dump(initial_data, write_file, ensure_ascii=False, indent=4)
-            else:
-                pass
+        for item in playlist_id_list:
+            old_id = stored_video_id(item)
+            old_dict = {'playlist_id': item, 'video_id': old_id}
+            old_ids_list.append(old_dict)
+
+        for item in playlist_id_list:
+            response = get_playlist_info(item)
+            new_id = isolate_latest_addition(response)
+            all_dict = {'playlist_id': item, 'video_id': new_id}
+            all_ids_list.append(all_dict)
+
+        for item in all_ids_list.copy():
+            if item in old_ids_list:
+                all_ids_list.remove(item)    
+
+        if len(all_ids_list) == 0:
+            print('No playlists have been updated')
+            pass
+        else:
+            for item in all_ids_list:
+                playlist_id = item['playlist_id']
+                response = get_playlist_info(playlist_id)
+                video_id = isolate_latest_addition(response)
+                stored_index = stored_video_id(item)
+                if stored_index != video_id: 
+                    send_notification(response)
+
+
+        with open('stored_values.json', 'w') as write_file:
+            json.dump(initial_data, write_file, ensure_ascii=False, indent=4)
     else:
         print('Youtube is unreachable. Check your connection.')
         pass
+
