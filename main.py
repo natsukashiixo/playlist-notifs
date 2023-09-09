@@ -46,9 +46,10 @@ def isolate_playlist_ids(file, json_data):
     with open(file, 'r') as f:
         raw_urls = f.read()
         for line in raw_urls.splitlines():
-            if line.startswith('https://www.youtube.com/playlist?list='):
-                line = line.replace('https://www.youtube.com/playlist?list=', '')
-                playlist_id_list.append(line)
+            if line.startswith('https://') or line.startswith('www.'):
+                id_parts = line.split('list=')
+                playlist_id = id_parts[1]
+                playlist_id_list.append(playlist_id)
             else:
                 playlist_id_list.append(line)
         f.close
