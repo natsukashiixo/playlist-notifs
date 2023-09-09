@@ -42,7 +42,7 @@ with open('api_key.txt', 'r') as f:
 # https://developers.google.com/explorer-help/code-samples#python
 
 
-def isolate_playlist_ids(file):
+def isolate_playlist_ids(file, json_data):
     with open(file, 'r') as f:
         raw_urls = f.read()
         for line in raw_urls.splitlines():
@@ -55,12 +55,9 @@ def isolate_playlist_ids(file):
     with open(file, 'w') as f:
         f.close    
 
-    if Path('stored_values.json').exists():
-        with open('stored_values.json', 'r') as json_file:
-            json_data = json.load(json_file)
-            for entry in json_data:
-                if entry.get("playlist_id") != '':
-                    playlist_id_list.append(entry.get("playlist_id"))
+    for entry in json_data:
+        if entry.get("playlist_id") != '':
+            playlist_id_list.append(entry.get("playlist_id"))
 
 
 def youtube_accessible():
@@ -97,11 +94,7 @@ def isolate_latest_addition(response):
     video_id = unpacked_list.get("snippet", {}).get("resourceId", {}).get("videoId", "")
     return video_id
 
-def stored_video_id(playlist_id: str):
-    with open('stored_values.json', 'r') as file:
-        json_data = json.load(file)
-        #this probably opens and closes the file if its used in a for loop. seems bad but don't optimize prematurely.
-    
+def stored_video_id(playlist_id: str, json_data):
     for entry in json_data:
         if entry.get("playlist_id") == playlist_id:
             return entry.get("stored_video")
@@ -153,17 +146,19 @@ def clean_temp_folder(folder):
             os.unlink(file)
 
 if __name__ == "__main__":
+    with open('stored_values.json', 'r') as file:
+        json_data = json.load(file)
     if youtube_accessible():
         initial_data = []
         clean_temp_folder(abs_temp_dir)
-        isolate_playlist_ids(playlists_file)
+        isolate_playlist_ids(playlists_file, json_data)
         for item in playlist_id_list:
             response = get_playlist_info(item)
             to_write = create_json_object(response)
             initial_data.append(to_write)
                 
         for item in playlist_id_list:
-            old_id = stored_video_id(item)
+            old_id = stored_video_id(item, json_data)
             old_dict = {'playlist_id': item, 'video_id': old_id}
             old_ids_list.append(old_dict)
 
@@ -185,7 +180,7 @@ if __name__ == "__main__":
                 playlist_id = item['playlist_id']
                 response = get_playlist_info(playlist_id)
                 video_id = isolate_latest_addition(response)
-                stored_index = stored_video_id(item)
+                stored_index = stored_video_id(item, json_data)
                 if stored_index != video_id: 
                     send_notification(response)
 
