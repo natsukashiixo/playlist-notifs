@@ -152,6 +152,7 @@ if __name__ == "__main__":
         initial_data = []
         clean_temp_folder(abs_temp_dir)
         isolate_playlist_ids(playlists_file, json_data)
+        playlist_id_list = list(set(playlist_id_list))
         for item in playlist_id_list:
             response = get_playlist_info(item)
             to_write = create_json_object(response)
