@@ -49,8 +49,8 @@ Notifications should pop up and a file named `stored_values.json` should appear.
 
 If you'd like to run it as a task, you can use Windows Task Scheduler to do so.
 
+If you need the program to clear thumbnails on each run, change `clean_bool = False` on line 143 to `clean_bool = True`. 
+
 # To-do
 
 Set up so `watch?=VIDEOID&list=PLAYLISTID` links can be used in `playlist_urls.txt`
-
-Set up some way to configure if/when locally stored thumbnails get deleted instead of doing it at each program launch
