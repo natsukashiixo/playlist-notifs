@@ -51,6 +51,6 @@ If you'd like to run it as a task, you can use Windows Task Scheduler to do so.
 
 If you need the program to clear thumbnails on each run, change `clean_bool = False` on line 143 to `clean_bool = True`. 
 
-# To-do
+# Known Issues
 
-Set up so `watch?=VIDEOID&list=PLAYLISTID` links can be used in `playlist_urls.txt`
+Not all creators keep their latest video at index 0 and instead move their videos around, usually to keep chronological order. This script is pretty useless for those playlists until I find a decent solution.
