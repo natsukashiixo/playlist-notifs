@@ -140,10 +140,12 @@ def create_json_object(response):
     return new_json
 
 def clean_temp_folder(folder):
-    folder = Path(folder)
-    for file in folder.glob('*.*'):
-        if os.path.exists(file):
-            os.unlink(file)
+    clean_bool = False
+    if clean_bool == True:
+        folder = Path(folder)
+        for file in folder.glob('*.*'):
+            if os.path.exists(file):
+                os.unlink(file)
 
 if __name__ == "__main__":
     with open('stored_values.json', 'r') as file:
