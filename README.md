@@ -54,7 +54,3 @@ If you'd like to run it as a task, you can use Windows Task Scheduler to do so.
 Set up so `watch?=VIDEOID&list=PLAYLISTID` links can be used in `playlist_urls.txt`
 
 Set up some way to configure if/when locally stored thumbnails get deleted instead of doing it at each program launch
-
-# Known bugs
-
-Each time a new playlist is being read in, all existing tracked playlists send a notification.
